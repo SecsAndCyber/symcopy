@@ -18,9 +18,14 @@ def working_directory(directory):
 def mklink(Link, Target):
     assert os.path.exists(Target)
     mode = os.stat(Target)[ST_MODE]
-    cmd = 'mklink {} "{}" "{}"'.format(
-                        "/D" if S_ISDIR(mode) else "",
-                        Link, Target)
+    if os.name == 'nt':
+        cmd = 'mklink {} "{}" "{}"'.format(
+                            "/D" if S_ISDIR(mode) else "",
+                            Link, Target)
+    elif os.name == 'posix':
+        cmd = 'ln -s "{}" "{}"'.format(Target, Link)
+    else:
+        raise OSError("Unknown OS: {}".format(os.name))
     log.debug(cmd)
     assert not os.path.exists(Link)
     
